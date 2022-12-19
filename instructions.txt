@@ -1,0 +1,17 @@
+#Use // or # as comments (they can be above or next to the instruction)
+
+#Supported Insructions are 1 and 2 Bytes (2 and 4 Hex)
+
+#A0 7F  //0111  1111
+A0 80 //1000 0000
+20 2000
+22 11A0
+24 2280
+26 8221
+28 B230
+2A 234E // Put N ASCII in R3
+2C 3300 // write to screen
+2E B034
+30 2350
+32 3300
+34 C000
