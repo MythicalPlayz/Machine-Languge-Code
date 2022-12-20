@@ -209,6 +209,7 @@ def executeinstruction(code):
     elif code[2] == code[3] == "0":
         return ["SKP"]
     else:
+        return ["SKP"] #TODO Learn move of what to do here
         print("ERROR EXECUTING INSTRUCTION")
         exit(-3)
     return ["CON"]
