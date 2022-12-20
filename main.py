@@ -239,8 +239,6 @@ print("Execute Finished")
 
 print("Writing Final Memory to File")
 writememorytotext()
-print("Done")
 print("Writing Final Registry to File")
 writeregistrytotext()
-print("Done")
 print("Finished")
