@@ -49,7 +49,7 @@ def writeregistrytotext():
     del registryfile,x,address
 
 def writeinstructionstomemory():
-    instructionsfile = open("instructions.txt")
+    instructionsfile = open("instructions.txt",encoding="utf-8")
     instructions = instructionsfile.read()
     instructionsfile.close()
 
@@ -194,7 +194,12 @@ def executeinstruction(code):
         t = int(code[3], base=16)
         radd = int(code[1], base=16)
         num = int(r[radd],base=16)
-        num = num >> t
+        bnum = bin(num).replace("0b","")
+        while len(bnum) < 8:
+            bnum = "0" + bnum
+        for _ in range(t):
+            bnum = bnum[7] + bnum[:-1]
+        num = int(bnum,base=2)
         num = hex(num).replace("0x","").upper() if len(hex(num).replace("0x","").upper()) > 1 else f"0{hex(num).replace('0x','').upper()}"
         r[radd] = num 
         if options["writememory"] == "step": writeregistrytotext()
@@ -203,7 +208,7 @@ def executeinstruction(code):
         #Jump
         address = int(code[2], base=16) * 16 + int(code[3], base=16)
         radd = int(code[1], base=16)
-        if r[0] == r[radd]:
+        if r[0] == r[radd] or code[1] == "0":
             return ["JMP",address]
 
     elif opcode == "C":
@@ -229,7 +234,7 @@ writememorytotext()
 print("Instructions Added")
 
 print("Starting to Execute")
-while counter < 256:
+while counter < 255:
     ocounter = counter
     ret = executeinstruction(add[counter] + add[counter + 1])
     if options["writememory"] == "step" and ret[0] != "SKP": input(f"Ran instructions in address {hex(counter).upper().replace('0X','')}, Press Enter to Continue:\n")
