@@ -7,7 +7,7 @@ options = {
     "ouputputdisplaytype": "string"
 }
 
-def ReadOptions(options):
+def readoptions(options):
     optionfile = open("settings.txt")
     option = optionfile.read().lower()
     optionfile.close()
@@ -215,7 +215,7 @@ def executeinstruction(code):
 
 print("Starting Up")
 print("Reading Config")
-ReadOptions(options)
+readoptions(options)
 print("Done")
 print("Adding Instructions")
 writeinstructionstomemory()
