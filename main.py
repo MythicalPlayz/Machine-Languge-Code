@@ -86,7 +86,7 @@ def executeinstruction(code):
     opcode = code[0]
 
     if opcode == "0":
-        return ["CON"]
+        return ["SKP"]
 
     elif opcode == "1":
         #Load From Memory    
@@ -207,7 +207,7 @@ def executeinstruction(code):
             return ["TER"]
             
     elif code[2] == code[3] == "0":
-        return ["CON"]
+        return ["SKP"]
     else:
         print("ERROR EXECUTING INSTRUCTION")
         exit(-3)
@@ -225,7 +225,7 @@ print("Starting to Execute")
 while counter < 256:
     ocounter = counter
     ret = executeinstruction(add[counter] + add[counter + 1])
-    if options["writememory"] == "step": input(f"Ran instructions in address {hex(counter).upper().replace('0X','')}, Press Enter to Continue:\n")
+    if options["writememory"] == "step" and ret[0] != "SKP": input(f"Ran instructions in address {hex(counter).upper().replace('0X','')}, Press Enter to Continue:\n")
     if ret[0] == "TER" and options["endwhenterminatecode"] == "true": con = False
     elif ret[0] == "JMP": counter = ret[1]
     if not con: break
