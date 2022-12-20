@@ -134,8 +134,10 @@ def executeinstruction(code):
         t = int(code[3], base=16)
         s = int(r[s],base=16)
         t = int(r[t],base=16)
+        res = s + t
+        if res > 255: res -= 256
         radd = int(code[1], base=16)
-        r[radd] = hex(s + t).replace("0x","").upper() if len(hex(s + t).replace("0x","").upper()) > 1 else f"0{hex(s + t).replace('0x','').upper()}"
+        r[radd] = hex(res).replace("0x","").upper() if len(hex(res).replace("0x","").upper()) > 1 else f"0{hex(res).replace('0x','').upper()}"
         if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "6":
@@ -145,7 +147,9 @@ def executeinstruction(code):
         s = int(r[s],base=16)
         t = int(r[t],base=16)
         radd = int(code[1], base=16)
-        r[radd] = hex(s + t).replace("0x","").upper() if len(hex(s + t).replace("0x","").upper()) > 1 else f"0{hex(s + t).replace('0x','').upper()}"
+        res = s + t
+        if res > 255: res -= 256
+        r[radd] = hex(res).replace("0x","").upper() if len(hex(res).replace("0x","").upper()) > 1 else f"0{hex(res).replace('0x','').upper()}"
         if options["writememory"] == "step": writeregistrytotext()
     
     elif opcode == "7":
