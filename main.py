@@ -224,6 +224,7 @@ readoptions(options)
 print("Done")
 print("Adding Instructions")
 writeinstructionstomemory()
+writememorytotext()
 print("Instructions Added")
 
 print("Starting to Execute")
