@@ -64,6 +64,7 @@ def writeinstructionstomemory():
         elif i.count(" ") != 1:
             l[x] = f"{i.split()[0]} {i.split()[1]}"
         x+=1  
+    j = ""
     for j in c:
         l.remove(j)
     del c,j,i,x
