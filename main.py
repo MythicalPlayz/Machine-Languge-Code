@@ -1,6 +1,27 @@
 r = ["00" for _ in range(16)]
 add = ["00" for _ in range(256)]
 
+options = {
+    "writememory": "step",
+    "endwhenterminatecode": "true",
+    "ouputputdisplaytype": "string"
+}
+
+def ReadOptions(options):
+    optionfile = open("settings.txt")
+    option = optionfile.read().lower()
+    optionfile.close()
+    option = option.split("\n")
+    for x in option:
+        if x.count(" ") > 0:
+            #TODO check if Valid Value
+            x = x.split()[0]
+            key = x.split("=")[0]
+            value = x.split("=")[1]
+            options[key] = value
+    del optionfile,option,key,value,x
+
+
 def writememorytotext():
     memoryfile = open("memory.txt","w")
     x = 00
@@ -10,7 +31,9 @@ def writememorytotext():
         x += 2
         if x >= 256:
             memoryfile.close()
+            print("Writing from Memory Successful")
             break
+    del memoryfile,x,address
 
 def writeregistrytotext():
     registryfile = open("registry.txt","w")
@@ -21,7 +44,9 @@ def writeregistrytotext():
         x += 1
         if x >= 16:
             registryfile.close()
+            print("Writing from Registry Successful")
             break
+    del registryfile,x,address
 
 def writeinstructionstomemory():
     instructionsfile = open("instructions.txt")
@@ -68,12 +93,14 @@ def executeinstruction(code):
         address = int(code[2], base=16) * 16 + int(code[3], base=16)
         radd = int(code[1], base=16)
         r[radd] = add[address]
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "2":
         #Load Value
         value = code[2]+ code[3]
         radd = int(code[1], base=16)
         r[radd] = value
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "3":
         #Store or Display
@@ -81,19 +108,25 @@ def executeinstruction(code):
             #Display
             outputfile = open("output.txt","a")
             radd = int(code[1], base=16)
-            outputfile.write(f"{bytes.fromhex(r[radd])}\n")
+            text = r[radd]
+            if options["ouputputdisplaytype"] == "string":
+                text = str(bytes.fromhex(text)).replace("b'","").replace("'","")
+            outputfile.write(f"{text}\n")
             outputfile.close()
+            print("Writing from Display Successful")
             return ["CON"]
         #Store
         address = int(code[2], base=16) * 16 + int(code[3], base=16)
         radd = int(code[1], base=16)
         add[address] = r[radd]
+        if options["writememory"] == "step": writememorytotext()
     
     elif opcode == "4":
         #Copy contents
         orad = int(code[2], base=16)
         nrad = int(code[3], base=16)
         r[nrad] = r[orad]
+        if options["writememory"] == "step": writeregistrytotext()
     
     elif opcode == "5":
         #Add (twos complement)
@@ -103,6 +136,7 @@ def executeinstruction(code):
         t = int(r[t],base=16)
         radd = int(code[1], base=16)
         r[radd] = hex(s + t).replace("0x","").upper() if len(hex(s + t).replace("0x","").upper()) > 1 else f"0{hex(s + t).replace('0x','').upper()}"
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "6":
         #Add (floating point)
@@ -112,6 +146,7 @@ def executeinstruction(code):
         t = int(r[t],base=16)
         radd = int(code[1], base=16)
         r[radd] = hex(s + t).replace("0x","").upper() if len(hex(s + t).replace("0x","").upper()) > 1 else f"0{hex(s + t).replace('0x','').upper()}"
+        if options["writememory"] == "step": writeregistrytotext()
     
     elif opcode == "7":
         #OR
@@ -122,7 +157,8 @@ def executeinstruction(code):
         radd = int(code[1], base=16)
         result = s | t
         result = hex(result).replace("0x","").upper() if len(hex(result).replace("0x","").upper()) > 1 else f"0{hex(result).replace('0x','').upper()}"
-        r[radd] =result 
+        r[radd] = result
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "8":
         #AND
@@ -134,6 +170,7 @@ def executeinstruction(code):
         result = s & t
         result = hex(result).replace("0x","").upper() if len(hex(result).replace("0x","").upper()) > 1 else f"0{hex(result).replace('0x','').upper()}"
         r[radd] = result
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "9":
         #XOR
@@ -145,6 +182,7 @@ def executeinstruction(code):
         result = s ^ t
         result = hex(result).replace("0x","").upper() if len(hex(result).replace("0x","").upper()) > 1 else f"0{hex(result).replace('0x','').upper()}"
         r[radd] = result
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "A":
         #ROTATE 
@@ -154,6 +192,7 @@ def executeinstruction(code):
         num = num >> t
         num = hex(num).replace("0x","").upper() if len(hex(num).replace("0x","").upper()) > 1 else f"0{hex(num).replace('0x','').upper()}"
         r[radd] = num 
+        if options["writememory"] == "step": writeregistrytotext()
 
     elif opcode == "B":
         #Jump
@@ -175,6 +214,9 @@ def executeinstruction(code):
     return ["CON"]
 
 print("Starting Up")
+print("Reading Config")
+ReadOptions(options)
+print("Done")
 print("Adding Instructions")
 writeinstructionstomemory()
 print("Instructions Added")
@@ -183,16 +225,17 @@ print("Starting to Execute")
 while counter < 256:
     ocounter = counter
     ret = executeinstruction(add[counter] + add[counter + 1])
-    if ret[0] == "TER": con = False
-    if ret[0] == "JMP": counter = ret[1]
+    if options["writememory"] == "step": input(f"Ran instructions in address {hex(counter).upper().replace('0X','')}, Press Enter to Continue:\n")
+    if ret[0] == "TER" and options["endwhenterminatecode"] == "true": con = False
+    elif ret[0] == "JMP": counter = ret[1]
     if not con: break
     counter = counter + 2 if ocounter == counter else counter
 print("Execute Finished")
 
-print("Writing Memory to File")
+print("Writing Final Memory to File")
 writememorytotext()
 print("Done")
-print("Writing Registry to File")
+print("Writing Final Registry to File")
 writeregistrytotext()
 print("Done")
 print("Finished")

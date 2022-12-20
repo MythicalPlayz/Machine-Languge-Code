@@ -1,0 +1,3 @@
+writememory=step (Step: Write Step By Step or Final: Wrte when the Program Ends)
+endwhenterminatecode=true (True: Terminate at C000 or False: Continue til the end)
+ouputputdisplaytype=string (String or Hex)
